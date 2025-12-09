@@ -135,3 +135,27 @@ This project provides a production‑ready e‑commerce database schema with a f
     select c.id, c.first_name, c.last_name, c.email, c.password, o.id, o.order_date, o.total_amount
     FROM orders o
     JOIN customers c ON o.customer_id = c.id
+
+> ### 8. Write a SQL query to search for all products with the word "camera" in either 
+
+    SELECT *
+    FROM products p
+    WHERE p.name LIKE '%camera%' OR p.description LIKE '%camera%'
+
+> ### 9.  query to suggest popular products in the same category for the same author, excluding the Purchsed product from the recommendations
+
+    SELECT COUNT(od.product_id) as product_count, prod.name as product_name
+    FROM order_details od
+    INNER JOIN products prod ON od.product_id = prod.id
+    INNER JOIN categories cat ON prod.category_id = cat.id
+    INNER JOIN orders o ON od.order_id = o.id
+    WHERE cat.name = 'recommended Category' 
+    	-- AND o.customer_id <> 'customerId' 
+    	    AND od.product_id NOT IN (   
+            SELECT od2.product_id
+            FROM order_details od2
+            JOIN orders o2 ON od2.order_id = o2.id
+            WHERE o2.customer_id = 'customerId'
+        )
+    GROUP BY od.product_id, prod.name 
+    ORDER BY product_count desc
